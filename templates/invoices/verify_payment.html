@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Payment{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Verify Payment for Invoice #{{ invoice.invoice_number }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Customer Information:</h5>
+                        <p>
+                            <strong>{{ invoice.customer.name }}</strong><br>
+                            {{ invoice.customer.email }}<br>
+                            {{ invoice.customer.phone }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Payment Details:</h5>
+                        <p>
+                            <strong>Amount:</strong> ${{ payment.amount }}<br>
+                            <strong>Date:</strong> {{ payment.payment_date }}<br>
+                            <strong>Status:</strong> {{ payment.get_status_display }}<br>
+                            <strong>Transaction ID:</strong> {{ payment.transaction_id }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <h5>Verification Instructions</h5>
+                    <p>Please verify this payment by checking your payment processor dashboard or bank account to confirm the funds have been received.</p>
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Verification Notes</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Optional: Add notes about this verification"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" name="action" value="approve" class="btn btn-success">
+                            Approve Payment
+                        </button>
+                        <button type="submit" name="action" value="reject" class="btn btn-danger">
+                            Reject Payment
+                        </button>
+                        <a href="{% url 'payment_verification_queue' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

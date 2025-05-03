@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="fas fa-user-circle me-2 text-primary"></i>My Profile
+    </h2>
+</div>
+
+<div class="row">
+    <!-- Profile Information -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.username.id_for_label }}">Username</label>
+                            <input type="text" name="{{ form.username.html_name }}" class="form-control bg-light" id="{{ form.username.id_for_label }}" value="{{ form.username.value }}" readonly>
+                            <small class="text-muted">Username cannot be changed</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                            <input type="email" name="{{ form.email.html_name }}" class="form-control" id="{{ form.email.id_for_label }}" value="{{ form.email.value }}">
+                            {% if form.email.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.first_name.id_for_label }}">First Name</label>
+                            <input type="text" name="{{ form.first_name.html_name }}" class="form-control" id="{{ form.first_name.id_for_label }}" value="{{ form.first_name.value|default:'' }}">
+                            {% if form.first_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.last_name.id_for_label }}">Last Name</label>
+                            <input type="text" name="{{ form.last_name.html_name }}" class="form-control" id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value|default:'' }}">
+                            {% if form.last_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.company_name.id_for_label }}">Company Name</label>
+                            <input type="text" name="{{ form.company_name.html_name }}" class="form-control" id="{{ form.company_name.id_for_label }}" value="{{ form.company_name.value|default:'' }}">
+                            {% if form.company_name.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.company_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+                            <input type="tel" name="{{ form.phone.html_name }}" class="form-control" id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:'' }}">
+                            {% if form.phone.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.phone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <i class="fas fa-info-circle fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="alert-heading">Account Information</h6>
+                                        <p class="mb-0">
+                                            <strong>Account Type:</strong> {{ user.get_role_display }}<br>
+                                            <strong>Joined:</strong> {{ user.date_joined|date:"F j, Y" }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Password Change -->
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Security</h5>
+            </div>
+            <div class="card-body">
+                <p>Change your password or recover your current one.</p>
+                <a href="{% url 'password_reset' %}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="fas fa-key me-1"></i> Change Password
+                </a>
+            </div>
+        </div>
+        
+        <!-- Account Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Account Statistics</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Last Login
+                        <span class="badge bg-primary rounded-pill">{{ user.last_login|date:"M d, Y" }}</span>
+                    </li>
+                    {% if user.is_carrier %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Customers
+                        <span class="badge bg-primary rounded-pill">{{ customer_count|default:"0" }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Total Invoices
+                        <span class="badge bg-primary rounded-pill">{{ invoice_count|default:"0" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

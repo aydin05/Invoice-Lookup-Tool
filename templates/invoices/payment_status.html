@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Payment Status{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header 
+                {% if payment.status == 'completed' %}bg-success
+                {% elif payment.status == 'failed' %}bg-danger
+                {% else %}bg-info{% endif %} text-white">
+                <h4 class="mb-0">
+                    {% if payment.status == 'completed' %}Payment Successful
+                    {% elif payment.status == 'failed' %}Payment Failed
+                    {% elif payment.status == 'processing' %}Payment Processing
+                    {% else %}Payment Pending{% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    {% if payment.status == 'completed' %}
+                        <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                    {% elif payment.status == 'failed' %}
+                        <i class="fas fa-times-circle text-danger" style="font-size: 64px;"></i>
+                    {% else %}
+                        <i class="fas fa-clock text-info" style="font-size: 64px;"></i>
+                    {% endif %}
+                </div>
+                
+                <h5 class="text-center mb-4">
+                    {% if payment.status == 'completed' %}
+                        Your payment has been processed successfully!
+                    {% elif payment.status == 'failed' %}
+                        Your payment could not be processed.
+                    {% else %}
+                        Your payment is being processed.
+                    {% endif %}
+                </h5>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Invoice Details:</h6>
+                        <p>
+                            <strong>Invoice #:</strong> {{ invoice.invoice_number }}<br>
+                            <strong>Amount:</strong> ${{ payment.amount }}<br>
+                            <strong>Payment Date:</strong> {{ payment.payment_date }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Status Information:</h6>
+                        <p>
+                            <strong>Status:</strong> {{ payment.get_status_display }}<br>
+                            <strong>Transaction ID:</strong> {{ payment.transaction_id }}<br>
+                            {% if payment.verified_date %}
+                            <strong>Verified Date:</strong> {{ payment.verified_date }}
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                {% if payment.status == 'processing' or payment.status == 'pending' %}
+                    <div class="alert alert-info mt-3">
+                        <p>Your payment is being verified. This may take some time. You'll receive an email once the verification is complete.</p>
+                    </div>
+                {% endif %}
+                
+                {% if payment.status == 'failed' and payment.verification_notes %}
+                    <div class="alert alert-danger mt-3">
+                        <p><strong>Reason for failure:</strong> {{ payment.verification_notes }}</p>
+                    </div>
+                {% endif %}
+                
+                <div class="text-center mt-4">
+                    {% if payment.status == 'completed' %}
+                        <a href="{% url 'invoice_pdf' invoice.id %}" class="btn btn-primary">Download Receipt</a>
+                    {% elif payment.status == 'failed' %}
+                        <a href="{% url 'initiate_payment' invoice.id %}" class="btn btn-primary">Try Again</a>
+                    {% endif %}
+                    <a href="{% url 'invoice_list' %}" class="btn btn-secondary">Back to Invoices</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

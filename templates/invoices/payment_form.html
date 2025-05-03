@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Pay Invoice #{{ invoice.invoice_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Pay Invoice #{{ invoice.invoice_number }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>From:</h5>
+                        <p>
+                            <strong>{{ invoice.user.get_full_name|default:invoice.user.username }}</strong><br>
+                            {{ invoice.user.company_name }}<br>
+                            {{ invoice.user.phone }}
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <h5>To:</h5>
+                        <p>
+                            <strong>{{ invoice.customer.name }}</strong><br>
+                            {{ invoice.customer.email }}<br>
+                            {{ invoice.customer.phone }}<br>
+                            {{ invoice.customer.address }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+                        <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p><strong>Amount Due:</strong> ${{ invoice.total_amount }}</p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h5 class="mb-3">Payment Information</h5>
+                
+                <!-- Credit Card Form -->
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" name="card_number" placeholder="1234 5678 9012 3456" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Expiration Date</label>
+                                <input type="text" class="form-control" name="expiry" placeholder="MM/YY" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-control" name="cvv" placeholder="123" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Name on Card</label>
+                        <input type="text" class="form-control" name="name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Billing Address</label>
+                        <input type="text" class="form-control" name="address" value="{{ invoice.customer.address }}" required>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="save_card" name="save_card">
+                        <label class="form-check-label" for="save_card">Save card for future payments</label>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-lock me-2"></i> Your payment information is secure and encrypted. We do not store your full card details.
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success">Pay ${{ invoice.total_amount }}</button>
+                        <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-secondary ms-2">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Simple client-side validation for card input
+    document.addEventListener('DOMContentLoaded', function() {
+        const cardInput = document.querySelector('input[name="card_number"]');
+        const expiryInput = document.querySelector('input[name="expiry"]');
+        const cvvInput = document.querySelector('input[name="cvv"]');
+        
+        // Format card number as groups of 4 digits
+        cardInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            let formatted = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
+                }
+                formatted += value[i];
+            }
+            
+            e.target.value = formatted.slice(0, 19); // Limit to 16 digits + 3 spaces
+        });
+        
+        // Format expiry as MM/YY
+        expiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2, 4);
+            }
+            
+            e.target.value = value.slice(0, 5);
+        });
+        
+        // Limit CVV to 3-4 digits
+        cvvInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            e.target.value = value.slice(0, 4);
+        });
+    });
+</script>
+{% endblock %}

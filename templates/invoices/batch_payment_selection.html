@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}Batch Payment{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="fas fa-money-check-alt me-2 text-primary"></i>Batch Payment
+    </h2>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p>Select multiple invoices to pay them all at once. This will streamline your payment process.</p>
+        
+        {% if unpaid_invoices %}
+            <form method="get" class="mb-4">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th><input type="checkbox" id="select-all" class="form-check-input"></th>
+                                <th>Invoice #</th>
+                                <th>Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for invoice in unpaid_invoices %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="invoice_ids" value="{{ invoice.id }}" 
+                                           class="form-check-input invoice-checkbox"
+                                           {% if invoice.id|stringformat:"s" in selected_ids %}checked{% endif %}>
+                                </td>
+                                <td>{{ invoice.invoice_number }}</td>
+                                <td>{{ invoice.issue_date }}</td>
+                                <td>{{ invoice.due_date }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if invoice.status == 'overdue' %}bg-danger
+                                        {% elif invoice.status == 'draft' %}bg-secondary
+                                        {% else %}bg-info{% endif %}">
+                                        {{ invoice.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end">${{ invoice.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary">Calculate Total</button>
+                </div>
+            </form>
+            
+            {% if selected_ids %}
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span>Selected Invoices: {{ selected_ids|length }}</span>
+                            <span class="h4 mb-0">Total: ${{ total_amount }}</span>
+                        </div>
+                        
+                        <form method="post" action="{% url 'process_batch_payment' %}">
+                            {% csrf_token %}
+                            {% for id in selected_ids %}
+                                <input type="hidden" name="invoice_ids" value="{{ id }}">
+                            {% endfor %}
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-credit-card me-2"></i>Pay ${{ total_amount }} Now
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info">
+                <p class="mb-0">You don't have any unpaid invoices at the moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const invoiceCheckboxes = document.querySelectorAll('.invoice-checkbox');
+        
+        // Select all functionality
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            invoiceCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+        });
+        
+        // Update select all when individual checkboxes change
+        invoiceCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const allChecked = Array.from(invoiceCheckboxes).every(cb => cb.checked);
+                const anyChecked = Array.from(invoiceCheckboxes).some(cb => cb.checked);
+                
+                selectAllCheckbox.checked = allChecked;
+                selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+            });
+        });
+        
+        // Initial state
+        const allChecked = Array.from(invoiceCheckboxes).every(cb => cb.checked);
+        const anyChecked = Array.from(invoiceCheckboxes).some(cb => cb.checked);
+        selectAllCheckbox.checked = allChecked;
+        selectAllCheckbox.indeterminate = anyChecked && !allChecked;
+    });
+</script>
+{% endblock %}

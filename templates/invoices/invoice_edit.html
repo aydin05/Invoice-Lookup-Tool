@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Invoice #{{ invoice.invoice_number }}{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .item-form-row:hover .btn-remove-item {
+            opacity: 1;
+        }
+
+        .btn-remove-item {
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="fas fa-edit me-2 text-primary"></i>Edit Invoice #{{ invoice.invoice_number }}
+        </h2>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Invoice Details -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.invoice_number.id_for_label }}">Invoice
+                                Number</label>
+                            <input type="text" name="{{ form.invoice_number.html_name }}" class="form-control"
+                                   id="{{ form.invoice_number.id_for_label }}"
+                                   value="{{ form.invoice_number.value|default:'' }}">
+                            {% if form.invoice_number.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.invoice_number.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.customer.id_for_label }}">Customer</label>
+                            <div class="input-group">
+                                <select name="{{ form.customer.html_name }}" class="form-select"
+                                        id="{{ form.customer.id_for_label }}">
+                                    {% for choice in form.customer.field.choices %}
+                                        <option value="{{ choice.0 }}"
+                                                {% if form.customer.value|stringformat:"s" == choice.0|stringformat:"s" %}selected{% endif %}>{{ choice.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                                <a href="{% url 'customer_create' %}?next=invoice_edit" class="btn btn-outline-primary">
+                                    <i class="fas fa-plus"></i> New
+                                </a>
+                            </div>
+                            {% if form.customer.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.customer.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.issue_date.id_for_label }}">Issue Date</label>
+                            <input type="date" name="{{ form.issue_date.html_name }}" class="form-control"
+                                   id="{{ form.issue_date.id_for_label }}"
+                                   value="{{ form.issue_date.value|date:'Y-m-d' }}">
+                            {% if form.issue_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.issue_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.due_date.id_for_label }}">Due Date</label>
+                            <input type="date" name="{{ form.due_date.html_name }}" class="form-control"
+                                   id="{{ form.due_date.id_for_label }}" value="{{ form.due_date.value|date:'Y-m-d' }}">
+                            {% if form.due_date.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.due_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label class="form-label" for="{{ form.status.id_for_label }}">Status</label>
+                            <select name="{{ form.status.html_name }}" class="form-select"
+                                    id="{{ form.status.id_for_label }}">
+                                {% for choice in form.status.field.choices %}
+                                    <option value="{{ choice.0 }}"
+                                            {% if form.status.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                                {% endfor %}
+                            </select>
+                            {% if form.status.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.status.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice Items -->
+                <h5 class="mt-4 mb-3">
+                    <i class="fas fa-list me-2"></i>Invoice Items
+                </h5>
+
+                {{ formset.management_form }}
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <div class="row">
+                            <div class="col-md-6">Description</div>
+                            <div class="col-md-2">Quantity</div>
+                            <div class="col-md-2">Unit Price</div>
+                            <div class="col-md-2">Actions</div>
+                        </div>
+                    </div>
+                    <div class="card-body" id="item-formset">
+                        {% for form in formset %}
+                            <div class="row mb-3 item-form-row">
+                                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+                                {{ form.id }}
+                                <div class="col-md-6">
+                                    <input type="text" name="{{ form.description.html_name }}" class="form-control"
+                                           id="{{ form.description.id_for_label }}" placeholder="Description"
+                                           value="{{ form.description.value|default:'' }}">
+                                    {% if form.description.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.description.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="number" name="{{ form.quantity.html_name }}" class="form-control"
+                                           id="{{ form.quantity.id_for_label }}" placeholder="Quantity" min="1"
+                                           value="{{ form.quantity.value|default:'1' }}">
+                                    {% if form.quantity.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.quantity.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" name="{{ form.unit_price.html_name }}" class="form-control"
+                                               id="{{ form.unit_price.id_for_label }}" placeholder="Price" step="0.01"
+                                               min="0" value="{{ form.unit_price.value|default:'0' }}">
+                                    </div>
+                                    {% if form.unit_price.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in form.unit_price.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-2 d-flex align-items-center">
+                                    {% if forloop.first %}
+                                        <button class="btn btn-success btn-sm" id="add-item" type="button">
+                                            <i class="fas fa-plus"></i> Add Item
+                                        </button>
+                                    {% else %}
+                                        <button class="btn btn-outline-danger btn-sm btn-remove-item" type="button">
+                                            <i class="fas fa-times"></i> Remove
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div id="empty-form" style="display:none">
+                    <div class="row mb-3 item-form-row">
+                        <div class="col-md-6">
+                            <input type="text" name="{{ formset.empty_form.description.html_name }}"
+                                   class="form-control" id="{{ formset.empty_form.description.id_for_label }}"
+                                   placeholder="Description">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" name="{{ formset.empty_form.quantity.html_name }}" class="form-control"
+                                   id="{{ formset.empty_form.quantity.id_for_label }}" placeholder="Quantity" min="1"
+                                   value="1">
+                        </div>
+                        <div class="col-md-2">
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" name="{{ formset.empty_form.unit_price.html_name }}"
+                                       class="form-control" id="{{ formset.empty_form.unit_price.id_for_label }}"
+                                       placeholder="Price" step="0.01" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-center">
+                            <button class="btn btn-outline-danger btn-sm btn-remove-item" type="button">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.notes.id_for_label }}">Notes</label>
+                    <textarea name="{{ form.notes.html_name }}" class="form-control" id="{{ form.notes.id_for_label }}"
+                              rows="3">{{ form.notes.value|default:'' }}</textarea>
+                    {% if form.notes.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.notes.errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Buttons -->
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Update Invoice</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add button to add more items
+            const addButton = document.querySelector('#add-item');
+            addButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+                const currentForms = parseInt(totalForms.value);
+                const formCopyTarget = document.querySelector('#item-formset');
+
+                const copyEmptyFormEl = document.querySelector('#empty-form .item-form-row').cloneNode(true);
+                copyEmptyFormEl.innerHTML = copyEmptyFormEl.innerHTML.replace(/__prefix__/g, currentForms);
+                formCopyTarget.append(copyEmptyFormEl);
+
+                totalForms.value = currentForms + 1;
+            });
+
+            // Remove button functionality
+            document.addEventListener('click', function (e) {
+                if (e.target.classList.contains('btn-remove-item') || e.target.closest('.btn-remove-item')) {
+                    e.preventDefault();
+                    const row = e.target.closest('.item-form-row');
+                    const deleteInput = row.querySelector('input[name$="-DELETE"]');
+                    if (deleteInput) {
+                        deleteInput.value = 'on';
+                        row.style.display = 'none';
+                    } else {
+                        row.remove();
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,170 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Invoice #{{ invoice.invoice_number }}</title>
+    <style type="text/css">
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 12px;
+            color: #333333;
+        }
+        .invoice-box {
+            max-width: 800px;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, .15);
+            font-size: 16px;
+            line-height: 24px;
+        }
+        .invoice-box table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+            border-collapse: collapse;
+        }
+        .invoice-box table td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .invoice-box table tr.top table td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.top table td.title {
+            font-size: 45px;
+            line-height: 45px;
+            color: #333;
+        }
+        .invoice-box table tr.information table td {
+            padding-bottom: 40px;
+        }
+        .invoice-box table tr.heading td {
+            background: #eee;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .invoice-box table tr.details td {
+            padding-bottom: 20px;
+        }
+        .invoice-box table tr.item td {
+            border-bottom: 1px solid #eee;
+        }
+        .invoice-box table tr.item.last td {
+            border-bottom: none;
+        }
+        .invoice-box table tr.total td:nth-child(4) {
+            border-top: 2px solid #eee;
+            font-weight: bold;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .invoice-status {
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .status-paid {
+            background-color: #28a745;
+        }
+        .status-overdue {
+            background-color: #dc3545;
+        }
+        .status-draft {
+            background-color: #6c757d;
+        }
+        .status-sent {
+            background-color: #17a2b8;
+        }
+        .status-cancelled {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <table cellpadding="0" cellspacing="0">
+            <tr class="top">
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td class="title">
+                                INVOICE
+                            </td>
+                            <td class="text-right">
+                                Invoice #: {{ invoice.invoice_number }}<br>
+                                Created: {{ invoice.issue_date }}<br>
+                                Due: {{ invoice.due_date }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr class="information">
+                <td colspan="4">
+                    <table>
+                        <tr>
+                            <td>
+                                <strong>From:</strong><br>
+                                {{ invoice.user.get_full_name|default:invoice.user.username }}<br>
+                                {{ invoice.user.company_name }}<br>
+                                {{ invoice.user.phone }}
+                            </td>
+
+                            <td class="text-right">
+                                <strong>To:</strong><br>
+                                {{ invoice.customer.name }}<br>
+                                {{ invoice.customer.email }}<br>
+                                {{ invoice.customer.phone }}<br>
+                                {{ invoice.customer.address }}
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    <strong>Status:</strong>
+                    <span class="invoice-status status-{{ invoice.status }}">{{ invoice.status|title }}</span>
+                </td>
+            </tr>
+
+            <tr class="heading">
+                <td>Description</td>
+                <td class="text-right">Quantity</td>
+                <td class="text-right">Unit Price</td>
+                <td class="text-right">Total</td>
+            </tr>
+
+            {% for item in invoice.items.all %}
+            <tr class="item{% if forloop.last %} last{% endif %}">
+                <td>{{ item.description }}</td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">${{ item.unit_price }}</td>
+                <td class="text-right">${{ item.total }}</td>
+            </tr>
+            {% endfor %}
+
+            <tr class="total">
+                <td colspan="3"></td>
+                <td class="text-right">Total: ${{ invoice.total_amount }}</td>
+            </tr>
+
+            {% if invoice.notes %}
+            <tr>
+                <td colspan="4">
+                    <strong>Notes:</strong><br>
+                    {{ invoice.notes }}
+                </td>
+            </tr>
+            {% endif %}
+        </table>
+    </div>
+</body>
+</html>

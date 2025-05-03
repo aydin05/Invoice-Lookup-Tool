@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .invoice-details {
+            margin-bottom: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #777;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">{{ company_name }}</div>
+        </div>
+
+        <h2>Invoice #{{ invoice.invoice_number }} {{ action }}</h2>
+
+        <p>Dear {{ invoice.customer.name }},</p>
+
+        <p>
+            {% if action == "created" %}
+            We're writing to inform you that a new invoice has been created for your account.
+            {% else %}
+            We're writing to inform you that your invoice has been updated.
+            {% endif %}
+        </p>
+
+        <div class="invoice-details">
+            <p><strong>Invoice Number:</strong> {{ invoice.invoice_number }}</p>
+            <p><strong>Issue Date:</strong> {{ invoice.issue_date }}</p>
+            <p><strong>Due Date:</strong> {{ invoice.due_date }}</p>
+            <p><strong>Total Amount:</strong> ${{ invoice.total_amount }}</p>
+            <p><strong>Status:</strong> {{ invoice.get_status_display }}</p>
+        </div>
+
+        <p>Please find the attached PDF with the complete invoice details.</p>
+
+        <p>If you have any questions regarding this invoice, please don't hesitate to contact us.</p>
+
+        <p>Thank you for your business!</p>
+
+        <p>Regards,<br>{{ company_name }}</p>
+
+        <div class="footer">
+            <p>This is an automated email, please do not reply directly to this message.</p>
+        </div>
+    </div>
+</body>
+</html>

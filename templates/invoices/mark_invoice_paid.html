@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Invoice as Paid{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Mark Invoice as Paid</h4>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to mark Invoice #{{ invoice.invoice_number }} as paid?</p>
+                <p>This will:</p>
+                <ul>
+                    <li>Mark the invoice as "Paid"</li>
+                    <li>Send a payment confirmation email to the customer</li>
+                    <li>Delete the invoice from the system</li>
+                </ul>
+                <p><strong>Warning:</strong> This action cannot be undone. The invoice will be permanently removed after sending the confirmation.</p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-success">Mark as Paid</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

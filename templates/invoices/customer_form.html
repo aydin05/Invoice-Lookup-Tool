@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_edit %}Edit Customer{% else %}Add Customer{% endif %}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">
+        <i class="fas {% if is_edit %}fa-user-edit{% else %}fa-user-plus{% endif %} me-2 text-primary"></i>
+        {% if is_edit %}Edit Customer{% else %}Add Customer{% endif %}
+    </h2>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
+                        <input type="text" name="{{ form.name.html_name }}" class="form-control" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}" required>
+                        {% if form.name.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+                        <input type="email" name="{{ form.email.html_name }}" class="form-control" id="{{ form.email.id_for_label }}" value="{{ form.email.value|default:'' }}" required>
+                        {% if form.email.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.phone.id_for_label }}">Phone</label>
+                        <input type="tel" name="{{ form.phone.html_name }}" class="form-control" id="{{ form.phone.id_for_label }}" value="{{ form.phone.value|default:'' }}" required>
+                        {% if form.phone.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.phone.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
+                        <textarea name="{{ form.address.html_name }}" class="form-control" id="{{ form.address.id_for_label }}" rows="3" required>{{ form.address.value|default:'' }}</textarea>
+                        {% if form.address.errors %}
+                            <div class="text-danger mt-1">
+                                {% for error in form.address.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if not is_edit %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="create_account" name="create_account" checked>
+                        <label class="form-check-label" for="create_account">Create user account for this customer</label>
+                        <div class="form-text">A user account will allow this customer to log in and view their invoices</div>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% if is_edit %}{% url 'customer_list' %}{% else %}{% url 'invoice_create' %}{% endif %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if is_edit %}Update Customer{% else %}Save Customer{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

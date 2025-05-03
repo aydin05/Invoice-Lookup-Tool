@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-bottom: 3px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .credentials {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 3px solid #007bff;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Welcome to Invoice Lookup System</h2>
+        </div>
+
+        <p>Hello,</p>
+
+        <p>A customer account has been created for you in our Invoice Lookup System. You can now log in to view your invoices, download PDFs, and export data.</p>
+
+        <div class="credentials">
+            <p><strong>Your login credentials:</strong></p>
+            <p><strong>Username/Email:</strong> {{ email }}</p>
+            <p><strong>Password:</strong> {{ password }}</p>
+            <p><strong>Login URL:</strong> <a href="{{ login_url }}">{{ login_url }}</a></p>
+        </div>
+
+        <p>For security reasons, we recommend changing your password after your first login.</p>
+
+        <p>If you have any questions or need assistance, please don't hesitate to contact us.</p>
+
+        <p>Thank you for your business!</p>
+
+        <p>Best regards,<br>The Invoice Lookup Team</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Invoice{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-trash me-2"></i>Delete Invoice
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+                </div>
+
+                <h5 class="text-center mb-4">Are you sure you want to delete Invoice #{{ invoice.invoice_number }}?</h5>
+
+                <div class="alert alert-warning">
+                    <div class="d-flex">
+                        <div class="me-3">
+                            <i class="fas fa-exclamation-circle fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="alert-heading">Warning!</h6>
+                            <p class="mb-0">This action cannot be undone. All data associated with this invoice will be permanently removed from the system.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6>Invoice Details:</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Invoice #:</strong> {{ invoice.invoice_number }}</li>
+                            <li><strong>Customer:</strong> {{ invoice.customer.name }}</li>
+                            <li><strong>Amount:</strong> ${{ invoice.total_amount }}</li>
+                            <li><strong>Date:</strong> {{ invoice.issue_date }}</li>
+                            <li><strong>Status:</strong> {{ invoice.get_status_display }}</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'invoice_detail' invoice.id %}" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-1"></i> Delete Invoice
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
